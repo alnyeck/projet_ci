@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Récupérer le code
+      # 1️⃣ Checkout du dépôt
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -24,21 +24,34 @@ jobs:
         run: |
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      # 4️⃣ Exécuter le script Python
+      # 4️⃣ Exécuter main.py
       - name: Run main.py
         run: |
           python main.py
 
-      # 5️⃣ Afficher le contenu du fichier généré
-      - name: Show sortie.txt
-        run: cat sortie.txt
+      # 5️⃣ Générer report.md à partir de sortie.txt
+      - name: Generate report.md
+        run: |
+          if [ -f sortie.txt ]; then
+            echo "## Message:" > report.md
+            cat sortie.txt >> report.md
+          else
+            echo "## Message:" > report.md
+            echo "sortie.txt not found" >> report.md
+          fi
 
-      # 6️⃣ Commit & Push des fichiers générés
+      # 6️⃣ Afficher le contenu de sortie.txt dans les logs
+      - name: Show sortie.txt
+        run: |
+          [ -f sortie.txt ] && cat sortie.txt || echo "sortie.txt not found"
+
+      # 7️⃣ Commit & Push automatique
       - name: Commit & Push generated files
         run: |
           git config --global user.email "nyeck@sympatico.ca"
           git config --global user.name "alnyeck"
-          git add sortie.txt report.md || echo "Nothing to add"
+          [ -f sortie.txt ] && git add sortie.txt
+          [ -f report.md ] && git add report.md
           git diff --cached --quiet || git commit -m "Update generated files"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/alnyeck/projet_ci.git HEAD:main || echo "Nothing to push"
         env:
