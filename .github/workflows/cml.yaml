@@ -26,6 +26,7 @@ jobs:
          
           #cml-send-comment metrics.txt 
           #cml-send-comment report.md
+          # Update user email and user name
           git config --global user.email "nyeck@sympatico.ca"
           git config --global user.name "alnyeck"
           git add report.md sortie.txt
